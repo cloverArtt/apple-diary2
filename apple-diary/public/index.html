@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🍎 今日苹果日记 🍏</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      background: #a8dde8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      font-family: 'Noto Sans SC', sans-serif;
+    }
+
+    @keyframes floatA {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-10px); }
+    }
+    @keyframes floatB {
+      0%,100% { transform: translateY(-5px); }
+      50%      { transform: translateY(5px); }
+    }
+    @keyframes popIn {
+      from { transform: scale(0.5) translateY(8px); opacity: 0; }
+      to   { transform: scale(1)   translateY(0);   opacity: 1; }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0%,100% { transform: scale(1); }
+      50%      { transform: scale(1.08); }
+    }
+    @keyframes dotBounce {
+      0%,80%,100% { transform: scale(0); }
+      40%         { transform: scale(1); }
+    }
+
+    .float-a { animation: floatA 3s ease-in-out infinite; }
+    .float-b { animation: floatB 3.3s ease-in-out infinite; }
+    .bubble-pop { animation: popIn 0.4s cubic-bezier(.34,1.56,.64,1) forwards; }
+    .story-fade { animation: fadeUp 0.5s ease forwards; }
+
+    #title-box {
+      background: rgba(255,255,255,0.92);
+      border: 3px solid #ffb7c5;
+      border-radius: 20px;
+      padding: 8px 28px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 0 #ffb7c5;
+    }
+    #title-box span {
+      font-size: 20px;
+      font-weight: 900;
+      color: #e8759a;
+      letter-spacing: 3px;
+    }
+
+    #scene-card {
+      width: 100%;
+      max-width: 600px;
+      position: relative;
+      border-radius: 24px;
+      border: 3px solid rgba(255,255,255,0.85);
+      box-shadow: 0 8px 32px rgba(150,120,140,0.3);
+      overflow: visible;
+    }
+    #scene-card img#bg {
+      width: 100%;
+      display: block;
+      border-radius: 21px;
+      image-rendering: pixelated;
+    }
+
+    #apple-stage {
+      position: absolute;
+      bottom: 30%;
+      left: 0; right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 0 6%;
+    }
+
+    .char-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .apple-img {
+      width: 118px;
+      image-rendering: pixelated;
+      display: block;
+    }
+    .name-tag {
+      border-radius: 20px;
+      padding: 3px 12px;
+      font-size: 11px;
+      font-weight: 800;
+      color: white;
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+    .name-ying { background: #3a8e5a; box-shadow: 0 2px 0 #1a6a3a; }
+    .name-xia  { background: #e8759a; box-shadow: 0 2px 0 #c05070; }
+
+    .bubble {
+      position: absolute;
+      background: white;
+      border-radius: 14px;
+      padding: 6px 13px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      z-index: 30;
+    }
+    .bubble-ying {
+      border: 2.5px solid #a8e0b8;
+      color: #1a4a30;
+      box-shadow: 2px 3px 0 #a8e0b8;
+      border-radius: 14px 14px 14px 4px;
+      left: 50%; transform: translateX(-5%);
+    }
+    .bubble-xia {
+      border: 2.5px solid #f0b8c8;
+      color: #5a2840;
+      box-shadow: 2px 3px 0 #f0b8c8;
+      border-radius: 14px 14px 4px 14px;
+      right: 50%; transform: translateX(5%);
+    }
+    .bubble-top    { bottom: calc(100% + 10px); }
+    .bubble-bottom { bottom: 14px; }
+
+    .tail-outer, .tail-inner {
+      position: absolute;
+      bottom: -9px;
+      width: 0; height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+    }
+    .tail-inner {
+      bottom: -6px;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 7px solid white !important;
+    }
+    .tail-left  .tail-outer { left: 12px;  border-top: 9px solid #a8e0b8; }
+    .tail-left  .tail-inner { left: 14px; }
+    .tail-right .tail-outer { right: 12px; border-top: 9px solid #f0b8c8; }
+    .tail-right .tail-inner { right: 14px; }
+
+    #center-deco {
+      font-size: 18px;
+      padding-bottom: 60px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    #story-box {
+      min-height: 52px;
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 14px 0;
+    }
+    #story-text {
+      background: rgba(255,255,255,0.92);
+      border: 2px solid #ffd4de;
+      border-radius: 16px;
+      padding: 10px 20px;
+      font-size: 14px;
+      color: #6a3a4a;
+      line-height: 1.8;
+      text-align: center;
+      font-weight: 600;
+      box-shadow: 0 3px 0 #ffd4de;
+    }
+    #story-hint {
+      font-size: 13px;
+      color: rgba(80,60,70,0.4);
+      letter-spacing: 1px;
+    }
+    .loading-dots { display: flex; gap: 7px; }
+    .dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: #ffb7c5;
+      animation: dotBounce 1.2s ease-in-out infinite;
+    }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    #gen-btn {
+      background: linear-gradient(135deg, #ff8fab, #ffb3c1);
+      border: none;
+      border-radius: 50px;
+      padding: 13px 44px;
+      font-size: 15px;
+      font-weight: 800;
+      color: white;
+      cursor: pointer;
+      letter-spacing: 3px;
+      box-shadow: 0 5px 0 #e8849a;
+      transition: transform 0.15s, box-shadow 0.15s;
+      font-family: inherit;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    }
+    #gen-btn:hover   { transform: scale(1.06) translateY(-2px); }
+    #gen-btn:active  { transform: scale(0.96); }
+    #gen-btn:disabled { background: #f0c0cc; cursor: not-allowed; }
+
+    #footer-hint {
+      font-size: 11px;
+      color: rgba(80,60,70,0.35);
+      margin-top: 14px;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="title-box"><span>🍎 今日苹果日记 🍏</span></div>
+
+  <div id="scene-card">
+    <img id="bg" src="/imgs/bg.png" alt="bg"/>
+    <div id="apple-stage">
+
+      <!-- 左：莹莹 -->
+      <div class="char-wrap" id="ying-wrap">
+        <div id="ying-bubble-wrap"></div>
+        <div class="float-a">
+          <img id="ying-img" class="apple-img" src="/imgs/ying_happy.png" alt="莹莹" style="transform:scaleX(-1)"/>
+        </div>
+        <div class="name-tag name-ying">🍏 莹莹</div>
+      </div>
+
+      <div id="center-deco">🌸</div>
+
+      <!-- 右：夏以昼 -->
+      <div class="char-wrap" id="xia-wrap">
+        <div id="xia-bubble-wrap"></div>
+        <div class="float-b">
+          <img id="xia-img" class="apple-img" src="/imgs/xia_happy.png" alt="夏以昼"/>
+        </div>
+        <div class="name-tag name-xia">🍎 夏以昼</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="story-box">
+    <div id="story-hint">点击下方按钮，生成今日日记 ↓</div>
+  </div>
+
+  <button id="gen-btn" onclick="generate()">✨ 随机生成</button>
+  <p id="footer-hint">每次随机一个互动场景 + AI生成日记一句话</p>
+
+<script>
+const INTERACTIONS = [
+  { moodA:"happy",     moodB:"happy",     bA:"莹莹今天开心吗~",        bB:"哥哥你也太可爱了吧！",  aFirst:true  },
+  { moodA:"happy",     moodB:"shy",       bA:"宝宝脸红啦？",            bB:"才没有…哥哥大人坏！",   aFirst:true  },
+  { moodA:"cool",      moodB:"happy",     bA:"妹妹不要闹了。",          bB:"大长官严肃什么嘻嘻~",   aFirst:false },
+  { moodA:"happy",     moodB:"surprised", bA:"小长官，惊什么呢。",       bB:"哥哥！？怎么突然来！",  aFirst:false },
+  { moodA:"sad",       moodB:"happy",     bA:"妹妹…哥哥今天累了。",     bB:"哥哥抱抱！马上好！",    aFirst:true  },
+  { moodA:"cool",      moodB:"angry",     bA:"莹莹，消消气。",          bB:"哼！大笨蛋！不理你！",  aFirst:false },
+  { moodA:"angry",     moodB:"sad",       bA:"妹妹大人，别哭了。",      bB:"呜呜…夏以昼你凶我…",   aFirst:false },
+  { moodA:"shy",       moodB:"happy",     bA:"……谢谢你，莹莹。",        bB:"哥哥脸红了哈哈哈！",    aFirst:false },
+  { moodA:"surprised", moodB:"cool",      bA:"妹妹！你怎么这么淡定！",  bB:"大长官慌什么，我在呢。",aFirst:true  },
+  { moodA:"sleepy",    moodB:"happy",     bA:"莹莹……困了……",           bB:"哥哥哥哥快起来！",      aFirst:false },
+  { moodA:"happy",     moodB:"sleepy",    bA:"宝宝睡着了？",            bB:"嗯…妹妹大人要睡了…",   aFirst:true  },
+  { moodA:"cool",      moodB:"shy",       bA:"妹妹大人，乖。",          bB:"哥哥…你突然这么温柔…", aFirst:true  },
+  { moodA:"angry",     moodB:"surprised", bA:"莹莹，过来。",            bB:"哥！？哥哥你干嘛！",    aFirst:true  },
+  { moodA:"happy",     moodB:"happy",     bA:"莹莹真可爱。",            bB:"哥哥你才可爱！哼！",    aFirst:true  },
+  { moodA:"sad",       moodB:"sad",       bA:"妹妹……",                  bB:"哥哥……",               aFirst:true  },
+];
+
+function makeBubble(text, isLeft, isTop, cls) {
+  const div = document.createElement('div');
+  div.className = 'bubble bubble-pop ' + cls + ' ' +
+    (isTop ? 'bubble-top' : 'bubble-bottom') + ' ' +
+    (isLeft ? 'tail-left' : 'tail-right');
+  div.innerHTML = text +
+    '<div class="tail-outer"></div>' +
+    '<div class="tail-inner"></div>';
+  return div;
+}
+
+async function generate() {
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true;
+  btn.textContent = '生成中…';
+
+  const inter = INTERACTIONS[Math.floor(Math.random() * INTERACTIONS.length)];
+
+  // 换图片
+  const yingImg = document.getElementById('ying-img');
+  const xiaImg  = document.getElementById('xia-img');
+  yingImg.src = '/imgs/ying_' + inter.moodB + '.png';
+  yingImg.style.transform = inter.moodB === 'surprised' ? 'none' : 'scaleX(-1)';
+  xiaImg.src  = '/imgs/xia_'  + inter.moodA + '.png';
+
+  // 换气泡
+  const yingWrap = document.getElementById('ying-bubble-wrap');
+  const xiaWrap  = document.getElementById('xia-bubble-wrap');
+  yingWrap.innerHTML = '';
+  xiaWrap.innerHTML  = '';
+
+  // 谁先说话谁在上面
+  const yingBubble = makeBubble(inter.bB, true,  !inter.aFirst, 'bubble-ying');
+  const xiaBubble  = makeBubble(inter.bA, false, inter.aFirst,  'bubble-xia');
+  yingWrap.appendChild(yingBubble);
+  xiaWrap.appendChild(xiaBubble);
+
+  // 日记一句话
+  const storyBox = document.getElementById('story-box');
+  storyBox.innerHTML = '<div class="loading-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+
+  try {
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt: '你是可爱故事生成器。用一句话（20-35字）描述以下场景，语气软萌，像日记或小说片段，带点两人之间的小情绪或温馨感。哥哥叫「夏以昼」，妹妹叫「莹莹」。夏以昼说：「' + inter.bA + '」，莹莹说：「' + inter.bB + '」。只输出一句话，不要任何解释。'
+      })
+    });
+    const data = await res.json();
+    const text = data.text || '夏以昼和莹莹又在院子里闹小情绪了。';
+    storyBox.innerHTML = '<div id="story-text" class="story-fade">✦ ' + text + ' ✦</div>';
+  } catch(e) {
+    storyBox.innerHTML = '<div id="story-text" class="story-fade">✦ 夏以昼和莹莹又在院子里闹小情绪了。 ✦</div>';
+  }
+
+  btn.disabled = false;
+  btn.textContent = '✨ 随机生成';
+}
+</script>
+</body>
+</html>
