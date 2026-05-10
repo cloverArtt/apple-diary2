@@ -333,10 +333,10 @@ async function generate() {
       })
     });
     const data = await res.json();
-    const text = data.text || '夏以昼和莹莹又在院子里闹小情绪了。';
+    const text = data.text || '夏以昼和莹莹在院子里玩耍。';
     storyBox.innerHTML = '<div id="story-text" class="story-fade">✦ ' + text + ' ✦</div>';
   } catch(e) {
-    storyBox.innerHTML = '<div id="story-text" class="story-fade">✦ 夏以昼和莹莹又在院子里闹小情绪了。 ✦</div>';
+    storyBox.innerHTML = '<div id="story-text" class="story-fade">✦ 夏以昼和莹莹在院子里玩耍。 ✦</div>';
   }
 
   btn.disabled = false;
